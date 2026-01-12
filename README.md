@@ -7,7 +7,8 @@ keyword: NPU, STM32N6, MCU, Transformer, Vision Transformer
 # quickstart
 ## requirements
 ### python library
-- kaggelhub
+- kagglehub
+- pillow
 - tensorflow==2.7.0
 ### STM
 - STEdgeAI v2.2.0
