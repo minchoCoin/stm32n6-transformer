@@ -1,18 +1,5 @@
 import tensorflow as tf
 import numpy as np
-class TokenAverageMatMul(tf.keras.layers.Layer):
-    def __init__(self, seq_len, **kwargs):
-        super().__init__(**kwargs)
-        self.seq_len = seq_len
-        # [S, 1] 고정 가중치 (trainable=False)
-        self.w = tf.constant([[1.0/seq_len]] * seq_len, dtype=tf.float32)
-
-    def call(self, x):  # x: [B, S, D]
-        # [B, S, D] -> [B, D, S]
-        xt = tf.transpose(x, [0, 2, 1])
-        # [B, D, 1] = [B, D, S] @ [S, 1]
-        y = tf.linalg.matmul(xt, self.w)
-        return tf.squeeze(y, axis=-1)  # [B, D]
 # -----------------------------
 # Positional Encoding
 # -----------------------------
@@ -25,11 +12,7 @@ def positional_encoding(seq_len, d_model):
     pe[:, 1::2] = np.cos(angle[:, 1::2])
     return tf.constant(pe, dtype=tf.float32)
 
-# -----------------------------
-# LayerNorm (Renesas-friendly)
-# Prefer rsqrt implementation first. If your quantizer still complains about Sqrt/Div,
-# switch to IdentityNorm or the commented approximate version below.
-# -----------------------------
+
 class LayerNormSafe(tf.keras.layers.Layer):
     def __init__(self, d_model, epsilon=1e-6):
         super().__init__()
@@ -39,25 +22,14 @@ class LayerNormSafe(tf.keras.layers.Layer):
 
     def call(self, X):
         # X: (batch, seq_len, d_model)
-        mean = tf.reduce_mean(X, axis=-1, keepdims=True)              # supported
+        mean = tf.reduce_mean(X, axis=-1, keepdims=True)              
         diff = X - mean
-        var = tf.reduce_mean(diff * diff, axis=-1, keepdims=True)    # supported
-        # Try rsqrt (reciprocal sqrt). Many quantizers map this to mul-friendly ops.
-        inv_std = tf.math.rsqrt(var + self.epsilon)                  # rsqrt preferred
+        var = tf.reduce_mean(diff * diff, axis=-1, keepdims=True)    
+       
+        inv_std = tf.math.rsqrt(var + self.epsilon)                 
         X_norm = (X - mean) * inv_std
         return X_norm * self.gamma + self.beta
 
-# If rsqrt/div remains unsupported by your quantizer, try one of the fallbacks:
-# 1) Very simple approximation (avoid explicit division by variable):
-#    inv_std = tf.clip_by_value(1.0 / tf.sqrt(var + self.epsilon), 0.0, 1e6)
-#    <-- STILL uses division/sqrt (may fail)
-#
-# 2) Identity normalization (no normalization; keep residuals):
-# class IdentityNorm(tf.keras.layers.Layer):
-#     def call(self, X):
-#         return X
-#
-# Use IdentityNorm() in EncoderBlock to test NPU conversion quickly.
 
 # -----------------------------
 # Multi-Head Self-Attention (Dense + Dot)
@@ -98,7 +70,7 @@ class MultiHeadSelfAttentionDense(tf.keras.layers.Layer):
         Kh = self.split_heads(K)
         Vh = self.split_heads(V)
 
-        # ✅ tf.matmul handles batch dims automatically
+
         scale = tf.cast(tf.sqrt(tf.cast(self.depth, tf.float32)), tf.float32)
         Kh = tf.transpose(Kh, [0,1,3,2])
         scores = tf.matmul(Qh, Kh) / scale  # (b, heads, seq, seq)
@@ -133,9 +105,7 @@ class EncoderBlockSafe(tf.keras.layers.Layer):
             self.ln1 = LayerNormSafe(d_model)
             self.ln2 = LayerNormSafe(d_model)
         else:
-            # IdentityNorm fallback
-            #self.ln1 = tf.keras.layers.Layer()  # acts like identity if call returns input
-            #self.ln2 = tf.keras.layers.Layer()
+
             self.ln1 = tf.keras.layers.Lambda(lambda x: x)
             self.ln2 = tf.keras.layers.Lambda(lambda x: x)
 
@@ -151,45 +121,7 @@ class EncoderBlockSafe(tf.keras.layers.Layer):
         if self.use_norm:
             x = self.ln2(x)
         return x
-'''
-# -----------------------------
-# Transformer Encoder
-# -----------------------------
-class TransformerEncoderSafe(tf.keras.Model):
-    def __init__(self, num_blocks, d_model, num_heads, d_ff, seq_len, use_norm=True):
-        super().__init__()
-        self.seq_len = seq_len
-        self.d_model = d_model
-        self.pos_enc = positional_encoding(seq_len, d_model)  # constant
-        self.input_proj = tf.keras.layers.Dense(d_model, use_bias=True)  # optional input linear
-        self.blocks = [EncoderBlockSafe(d_model, num_heads, d_ff, use_norm=use_norm)
-                       for _ in range(num_blocks)]
-        self.head = tf.keras.layers.Dense(5, activation=None)
-        self.conv2d1 = tf.keras.layers.Conv2D(32, (3, 3), strides=2, padding='same', activation='relu')
-        self.conv2d2 = tf.keras.layers.Conv2D(64, (3, 3), strides=2, padding='same', activation='relu')
-        self.conv2d3 = tf.keras.layers.Conv2D(128, (3, 3), strides=2, padding='same', activation='relu')
-        self.conv2d4 = tf.keras.layers.Conv2D(self.d_model, (3, 3), strides=2, padding='same')
-        self.res = tf.keras.layers.Reshape((-1, self.d_model))
-    def call(self, X):
-        # X expected shape: (batch, seq_len, input_dim==d_model) -- if different, adjust input_proj
-        # ensure shapes: add pos enc (broadcast)
-        #x = self.conv2d1(X)
-        #x =  self.conv2d2(x)
-        #x =  self.conv2d3(x)
-        #X =  self.conv2d4(x)
-        #X = self.res(X)  # [B, N, dim]
-        #X = X + self.pos_enc  # broadcasting over batch
-        for b in self.blocks:
-            X = b(X)
-        #X=tf.keras.layers.layer.GlobalAveragePool
-        #X = tf.reduce_mean(X, axis=1)  # [B, D]
-        #X=tf.keras.layers.Flatten()(X)
-        X = TokenAverageMatMul(seq_len=self.seq_len)(X)
-        #X = X[:,0,:]
-        logits = self.head(X)          # [B, num_classes]
-        return logits
-        #return X
-'''
+
 class TransformerEncoderSafe(tf.keras.Model):
     def __init__(self, num_blocks, d_model, num_heads, d_ff, seq_len, num_classes, dropout, use_norm=False):
         super().__init__()
@@ -207,12 +139,10 @@ class TransformerEncoderSafe(tf.keras.Model):
         self.blocks = [EncoderBlockSafe(d_model, num_heads, d_ff, use_norm=use_norm)
                        for _ in range(num_blocks)]
         self.head = tf.keras.layers.Dense(num_classes,activation="softmax",use_bias=False)
-        self.conv1 = tf.keras.layers.Conv2D(d_model,kernel_size=16, strides=16)
+        
         self.drop = L.Dropout(self.dropout)
     def call(self, X):
-        #X=self.conv1(X)
 
-        #X=tf.reshape(X,(1,self.seq_len,self.d_model))
 
         B = tf.shape(X)[0]
 
@@ -259,8 +189,6 @@ def build_vit(
 
 
     # WE CHANGE THE INPUT AFTER PATCH EMBEDDING
-    #inputs = L.Input(shape=(image_size//patch_size,image_size//patch_size, 3*patch_size*patch_size),batch_size=1)
-    #x = L.Reshape((num_patches, 3*patch_size*patch_size))(inputs)  # [B, N, dim]
     inputs = L.Input(shape=(num_patches,patch_size*patch_size*3),batch_size=1)
 
     x = L.Dense(dim,use_bias=False)(inputs)
@@ -268,30 +196,28 @@ def build_vit(
 
     x = TransformerEncoderSafe(d_model=dim, num_heads=heads, d_ff=mlp_dim,seq_len=num_patches,num_blocks=depth, num_classes=num_classes, dropout=dropout, use_norm=use_norm)(x)
 
-    #x = L.Dropout(dropout)(x)
-    #x = x[:,0,:]
-    #outputs = L.Dense(num_classes, activation="softmax")(x)
+   
 
     return tf.keras.Model(inputs, x, name="TinyViT")
 
 
 def get_model(img,patch,nclass,d_model,num_blocks,num_heads,d_ff,dropout,use_layernorm):
-    # 하이퍼파라미터
+    
 
     seq_len = (img//patch)**2
     model = build_vit(img,patch,nclass,d_model,num_blocks,num_heads,d_ff,dropout,use_layernorm)
-    # 🔹 여기서 한 번 호출해줘야 내부 레이어들이 build됨
+    
     dummy = tf.random.uniform((1, (img//patch)**2, patch*patch*3))
     _ = model(dummy)
     model.compile(optimizer=tf.keras.optimizers.Adam(1e-4),
                   loss="sparse_categorical_crossentropy",
                   metrics=["accuracy"])
     model.summary()
-    #dense = tf.keras.layers.Dense(d_model,use_bias=False)
+    
     return model,seq_len
 
 def preprocess(x, y):
-    #x = tf.image.resize(x, (img, img))
+   
     x = tf.cast(x, tf.float32) / 255.0
 
     patches = tf.image.extract_patches(
@@ -303,7 +229,7 @@ def preprocess(x, y):
     )
 
     patches = tf.reshape(patches, (tf.shape(x)[0], -1, patches.shape[-1]))
-    #patches = dense(patches)
+    
     return patches, y
 
 
@@ -321,14 +247,12 @@ def load_image_as_float(path, img_size):
         arr = np.asarray(im, dtype=np.float32) / 255.0
     return arr  # (H, W, 3)
 
-# ----------- 모델이 사용하는 동일 preprocess ----------- #
+
 def preprocess_for_rep(x):
     # x: numpy array (H,W,3)
     x = tf.convert_to_tensor(x, dtype=tf.float32)
     x = tf.expand_dims(x, 0)                       # (1, IMG, IMG, 3)
-    #x = tf.image.resize(x, (IMG, IMG))
-    #x = tf.cast(x, tf.float32) / 255.0
-    #x = tf.nn.space_to_depth(x, block_size=16)
+
     patches = tf.image.extract_patches(
         images=x,
         sizes=[1, GLOBAL_PATCH_SIZE, GLOBAL_PATCH_SIZE, 1],
@@ -338,13 +262,11 @@ def preprocess_for_rep(x):
     )
 
     patches = tf.reshape(patches, (tf.shape(x)[0], -1, patches.shape[-1]))
-    #patches = dense(patches)
-
-    #x = tf.reshape(x, (shape[0],shape[1] * shape[2], shape[3]))   # (1, num_patches, depth)
+    
 
     return patches.numpy()
 
-# ----------- 대표 데이터 생성 함수 ----------- #
+
 def representative_data_gen(img_size):
     exts = ("*.jpg","*.jpeg")
     img_paths = []
@@ -354,7 +276,7 @@ def representative_data_gen(img_size):
     if not img_paths:
         raise FileNotFoundError("No test images found.")
 
-    # representative data로 200장
+    # representative data 200
     for p in img_paths[:200]:
         raw = load_image_as_float(p, img_size)   # (H,W,3)
         x = preprocess_for_rep(raw)         # (1, num_patches, depth)
@@ -394,12 +316,12 @@ def main():
     train_ds = train_ds.map(preprocess).prefetch(tf.data.AUTOTUNE)
     model.fit(train_ds, epochs=args.epochs)
 
-    # ====== 3) INT8(완전 정수) 양자화 ======
+   
     converter = tf.lite.TFLiteConverter.from_keras_model(model)
     converter.optimizations = [tf.lite.Optimize.DEFAULT]
     converter.representative_dataset = lambda: representative_data_gen(args.img_size)
 
-    # 완전 정수 경로: 모든 연산, 입출력까지 int8
+    
     converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
 
     if args.input_type == "int8":
