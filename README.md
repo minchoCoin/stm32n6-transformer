@@ -45,10 +45,10 @@ arm-none-eabi-objcopy -I binary STM32N6570-DK/network_data.xSPI2.bin --change-ad
 then `network.c`, `network_data.hex`, `network_data.xSPI2.bin`, `network_ecblobs.h` has been generated in `./Model/STM32N6570-DK`
 
 ## Download and open image classification project
-1. download ObjectDetection Sourcecode at [https://github.com/STMicroelectronics/STM32N6-GettingStarted-ImageClassification/releases/tag/v2.1.1](https://github.com/STMicroelectronics/STM32N6-GettingStarted-ImageClassification/releases/tag/v2.1.1)
+1. download ObjectDetection Sourcecode at [https://github.com/STMicroelectronics/STM32N6-GettingStarted-ImageClassification/releases/tag/v2.1.1.zip](https://github.com/STMicroelectronics/STM32N6-GettingStarted-ImageClassification/releases/tag/v2.1.1)
 1. run STM32CubeIDE
 2. Click File - Open Projects from File System
-3. Click Directory and add directory `STM32N6_GettingStarted_ObjectDetection-v2.1.0-rc9/Application/STM32N6570-DK`
+3. Click Directory and add directory `STM32N6_GettingStarted_ImageClassification-v2.1.1/Application/STM32N6570-DK`
 4. Click finish
 
 ## change app_config.h and main.c
@@ -78,6 +78,26 @@ then change NN_WIDTH, NN_HEIGHT value to image size, change PATCH_SIZE, NB_CLASS
 
 #endif
 ```
+## build project
+1. Click Project - Build All
+
+then bin file has been generated at `STM32N6_GettingStarted_ImageClassification-v2.1.1/Application/STM32N6570-DK/STM32CubeIDE/Debug`
+
+## flash the bin and hex files
+1. run STM32CubeProgrammer
+2. Connect STM32N6-DK
+
+Port: SWD, Frequency: 8000, Mode: Hot Plug, Access Port:1, Reset mode: Hardware reset
+
+3. Flash ai_fsbl.hex at `./Binary`
+
+4. Flash network_data.hex
+5. Sign the bin file
+```bash
+STM32_SigningTool_CLI -bin STM32N6570-DK_GettingStarted_ImageClassification.bin -nk -t ssbl -hv 2.3 -o STM32N6570-DK_GettingStarted_ImageClassification_sign.bin
+```
+6. Flash STM32N6570-DK_GettingStarted_ImageClassification_sign.bin (build from STM32CubeIDE) at address `0x70100000`
+
 
 # Difference with original ViT
 ## transformer_npu.py
