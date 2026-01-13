@@ -45,7 +45,7 @@ arm-none-eabi-objcopy -I binary STM32N6570-DK/network_data.xSPI2.bin --change-ad
 then `network.c`, `network_data.hex`, `network_data.xSPI2.bin`, `network_ecblobs.h` has been generated in `./Model/STM32N6570-DK`
 
 ## Download and open image classification project
-1. download ObjectDetection Sourcecode at [https://github.com/STMicroelectronics/STM32N6-GettingStarted-ImageClassification/releases/tag/v2.1.1.zip](https://github.com/STMicroelectronics/STM32N6-GettingStarted-ImageClassification/releases/tag/v2.1.1)
+1. download ImageClassification Sourcecode at [https://github.com/STMicroelectronics/STM32N6-GettingStarted-ImageClassification/releases/tag/v2.1.1.zip](https://github.com/STMicroelectronics/STM32N6-GettingStarted-ImageClassification/releases/tag/v2.1.1)
 1. run STM32CubeIDE
 2. Click File - Open Projects from File System
 3. Click Directory and add directory `STM32N6_GettingStarted_ImageClassification-v2.1.1/Application/STM32N6570-DK`
