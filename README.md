@@ -15,7 +15,7 @@ keyword: NPU, STM32N6, MCU, Transformer, Vision Transformer
 - STM32CubeProgrammer v2.19.0
 - STM32CubeIDE v1.19.0
 ## generate vision transformer tflite file
-generate vision transformer with input image size 160, patch size 16, number of classes 5, hidden size D 144, number of layers 6, number of heads 4, MLP size 56, dropout 0.1, using layernorm, and train model 5 epochs
+generate vision transformer with input image size 160, patch size 16, number of classes 5, hidden size D 144, number of layers 6, number of heads 4, MLP size 576, dropout 0.1, using layernorm, and train model 5 epochs
 ```
 python transformer_npu.py --img_size 160 --patch_size 16 --num_classes 5 --d_model 144 --num_blocks 6 --num_heads 4 --d_ff 576 --dropout 0.1 --use_layernorm --epochs 5
 ```
