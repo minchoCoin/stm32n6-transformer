@@ -1,0 +1,4 @@
+kagglehub
+pillow
+tensorflow==2.7.0
+numpy==1.24.4
