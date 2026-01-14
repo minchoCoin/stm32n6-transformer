@@ -4,6 +4,25 @@ Based on MCU-NPU' (KICS winter conference 2026)
 
 keyword: NPU, STM32N6, MCU, Transformer, Vision Transformer
 
+# source code tree
+```
+├─firmware
+    ├─app_config.h
+    ├─main.c
+├─make_model
+    ├─transformer_npu.py
+    ├─transformer_npu_v2.py
+└─prebuilt_binary
+    ├─v1
+        ├─custom_vit_ln_im160_attdim144_depth6_head4_ff576.tflite
+        ├─network_data.hex
+        ├─STM32N6570-DK_GettingStarted_ImageClassification_sign.bin
+    └─v2
+        ├─v2_custom_vit_ln_im160_attdim144_depth6_head4_ff576.tflite
+        ├─network_data.hex
+        ├─STM32N6570-DK_GettingStarted_ImageClassification_sign.bin
+```
+
 # prebuilt binary and model
 
 ## How to use?
@@ -110,6 +129,30 @@ STM32_SigningTool_CLI -bin STM32N6570-DK_GettingStarted_ImageClassification.bin 
 ```
 6. Flash STM32N6570-DK_GettingStarted_ImageClassification_sign.bin at address `0x70100000`
 
+# Argument of transformer_npu.py
+Notes: Arguement of transformer_npu.py and transformer_npu_v2.py are the same
+
+```
+python transformer_npu.py [-h] [--img_size IMG_SIZE] [--patch_size PATCH_SIZE] [--num_classes NUM_CLASSES] [--d_model D_MODEL] [--num_blocks NUM_BLOCKS] [--num_heads NUM_HEADS] [--d_ff D_FF][--dropout DROPOUT] [--use_layernorm] [--epochs EPOCHS] [--input_type INPUT_TYPE][--output_type OUTPUT_TYPE]
+```
+- --img_size : Input image size (default: 224)
+- --patch_size : Patch size(default:16)
+- --num_classes : Number of classes (default: 5)
+- --d_model : Hidden size D (default: 128)
+- --num_blocks : Number of Transformer layers (default: 4)
+- --num_heads : Number of attention heads (default: 4)
+- --d_ff : MLP size(feed-forward MLP network dimension) (default: 256) 
+- --dropout : dropout rate(default: 0.1)
+- --use_layernorm : use layernorm in transformer block
+- --epochs : Number of training epochs (default: 5)
+- --input_type : TFLite input type(default: uint8) : float32, int8, uint8
+- --output_type : TFLite output type(default: float32) : float32, int8, uint8
+
+## argument guide
+- image size should be divisible by patch size
+- d_model(hidden size D) should be divisible by num_heads(Number of attention heads)
+- we recommend --use_layernorm argument
+- we recommend setting --input_type to uint8
 
 # Difference with original ViT
 ## transformer_npu.py
