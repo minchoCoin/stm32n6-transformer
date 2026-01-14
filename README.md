@@ -4,6 +4,18 @@ Based on MCU-NPU' (KICS winter conference 2026)
 
 keyword: NPU, STM32N6, MCU, Transformer, Vision Transformer
 
+# prebuilt binary and model
+
+## How to use?
+1. run STM32CubeProgrammer
+2. Connect STM32N6-DK
+
+Port: SWD, Frequency: 8000, Mode: Hot Plug, Access Port:1, Reset mode: Hardware reset
+
+3. flash the ai_fsbl.hex (from [https://github.com/STMicroelectronics/STM32N6-GettingStarted-ImageClassification/releases/tag/v2.1.1](https://github.com/STMicroelectronics/STM32N6-GettingStarted-ImageClassification/releases/tag/v2.1.1))
+
+4. flash the network_data.hex
+5. flash the `STM32N6570-DK_GettingStarted_ImageClassification_sign.bin` at `0x70100000`
 # quickstart
 ## requirements
 ### python library
@@ -89,14 +101,14 @@ then bin file has been generated at `STM32N6_GettingStarted_ImageClassification-
 
 Port: SWD, Frequency: 8000, Mode: Hot Plug, Access Port:1, Reset mode: Hardware reset
 
-3. Flash ai_fsbl.hex at `./Binary`
+3. Flash ai_fsbl.hex at `STM32N6_GettingStarted_ImageClassification-v2.1.1/Binary`
 
 4. Flash network_data.hex
 5. Sign the bin file
 ```bash
 STM32_SigningTool_CLI -bin STM32N6570-DK_GettingStarted_ImageClassification.bin -nk -t ssbl -hv 2.3 -o STM32N6570-DK_GettingStarted_ImageClassification_sign.bin
 ```
-6. Flash STM32N6570-DK_GettingStarted_ImageClassification_sign.bin (build from STM32CubeIDE) at address `0x70100000`
+6. Flash STM32N6570-DK_GettingStarted_ImageClassification_sign.bin at address `0x70100000`
 
 
 # Difference with original ViT
