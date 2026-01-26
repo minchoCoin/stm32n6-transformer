@@ -175,3 +175,16 @@ python transformer_npu.py [-h] [--img_size IMG_SIZE] [--patch_size PATCH_SIZE] [
 CPU and NPU allocation details of the operation used in the ViT model. The PE part is a preprocessing process. The operator marked in orange is executed in the NPU, and the operator marked in light green is executed in the CPU. In a model including bias, the FC layer excluding the FC used for classification is changed to 1x1Conv2D with the bias parameter
 
 ![](demo.jpg)
+
+## Citation
+If you find stm32n6-transformer useful in your research and wish to cite it, please use the following BibTex entry:
+
+```
+@software{n6transformer2026,
+  author = {Taehun Kim},
+  title = {stm32n6-transformer: Apply Vision Transformer on STM32N6 NPU},
+  url = {https://github.com/minchoCoin/stm32n6-transformer},
+  version = {0.0},
+  year = {2026},
+}
+```
