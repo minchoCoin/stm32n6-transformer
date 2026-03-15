@@ -1,6 +1,6 @@
 # stm32n6-transformer
 
-[Paper(korean)(coming soon)](https://www.dbpia.co.kr/) | [Slides](https://github.com/minchoCoin/stm32n6-transformer/blob/main/assets/stm32n6_transformer.pdf) | [Presentation Video](https://youtu.be/kBkvOu6LNUI)
+[Paper(korean)(coming soon)](https://www.dbpia.co.kr/) | [Slides(en)](https://github.com/minchoCoin/stm32n6-transformer/blob/main/assets/stm32n6_transformer.pdf) | [Presentation Video(en)](https://youtu.be/kBkvOu6LNUI)
 
 Official repository of 'Implementation and Performance Evaluation of Vision Transformer Model
 Based on MCU-NPU' (KICS winter conference 2026)
@@ -76,7 +76,7 @@ cp st_ai_output/network_ecblobs.h STM32N6570-DK/
 cp st_ai_output/network_atonbuf.xSPI2.raw STM32N6570-DK/network_data.xSPI2.bin
 arm-none-eabi-objcopy -I binary STM32N6570-DK/network_data.xSPI2.bin --change-addresses 0x70380000 -O ihex STM32N6570-DK/network_data.hex
 ```
-then `network.c`, `network_data.hex`, `network_data.xSPI2.bin`, `network_ecblobs.h` has been generated in `./Model/STM32N6570-DK`
+then `network.c`, `network_data.hex`, `network_data.xSPI2.bin`, `network_ecblobs.h` will be generated in `./Model/STM32N6570-DK`
 
 ## Download and open image classification project
 1. download ImageClassification Sourcecode at [https://github.com/STMicroelectronics/STM32N6-GettingStarted-ImageClassification/releases/tag/v2.1.1.zip](https://github.com/STMicroelectronics/STM32N6-GettingStarted-ImageClassification/releases/tag/v2.1.1)
