@@ -173,6 +173,32 @@ python transformer_npu.py [-h] [--img_size IMG_SIZE] [--patch_size PATCH_SIZE] [
 - Use ReLU activation function for Multi-Layer Perceptron used for feed-forward
     - because TFLite GELU is not supported
 
+## Experiments and Results
+
+(table 1. Architecture of Vision Transformer for stm32n6 NPU)
+
+|                      | ViT-T | ViT-S | ViT-B | ViT-L |
+|:--------------------:|:-----:|:-----:|:-----:|:-----:|
+|         Image        |   96  |  160  |  160  |  224  |
+|         Patch        |   16  |   16  |   16  |   16  |
+|     Hidden Size D    |  128  |  128  |  144  |  176  |
+|        Layers        |   4   |   6   |   6   |   6   |
+|         Heads        |   4   |   4   |   4   |   8   |
+|       MLP size       |  128  |  256  |  576  |  704  |
+| Params(w/o bias) (M) | 0.494 | 0.889 | 1.608 | 2.371 |
+|  MACs(w/o bias) (M)  |  20.3 | 113.4 | 188.0 | 609.5 |
+|  Params(w/ bias) (M) | 0.498 | 0.894 | 1.616 | 2.380 |
+|   MACs(w/ bias) (M)  |  20.4 | 113.6 | 188.4 | 610.5 |
+
+(table 2. Comparison of model inference time bnetween STM32N6(MCU+NPU) and STM32H753ZI(MCU))
+
+|                               |  board  | ViT-T | ViT-S | ViT-B | ViT-L |
+|:-----------------------------:|:-------:|:-----:|:-----:|:-----:|:-----:|
+| Inference time(ms) (w/o bias) | STM32N6 |   12  |   72  |   82  |  417  |
+| Inference time(ms) (w/o bias) | STM32H7 |  142  |  748  |  968  |   -   |
+|  Inference time(ms) (w/ bias) | STM32N6 |   9   |   61  |   71  |  373  |
+|  Inference time(ms) (w/ bias) | STM32H7 |  108  |  632  |  826  |   -   |
+
 ## pictures
 ![](transformer.png)
 CPU and NPU allocation details of the operation used in the ViT model. The PE part is a preprocessing process. The operator marked in orange is executed in the NPU, and the operator marked in light green is executed in the CPU. In a model including bias, the FC layer excluding the FC used for classification is changed to 1x1Conv2D with the bias parameter
