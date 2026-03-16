@@ -182,12 +182,31 @@ CPU and NPU allocation details of the operation used in the ViT model. The PE pa
 ## Citation
 If you find stm32n6-transformer useful in your research and wish to cite it, please use the following BibTex entry:
 
+- for code:
+
 ```
-@software{n6transformer2026,
-  author = {Taehun Kim},
+@software{kim2026stm32n6transformer,
+  author = {Kim, Tae Hun},
   title = {stm32n6-transformer: Apply Vision Transformer on STM32N6 NPU},
   url = {https://github.com/minchoCoin/stm32n6-transformer},
   version = {0.0},
   year = {2026},
+  note = {Accessed: 2026-03-16}
+}
+```
+
+- for paper (NOT YET PUBLISHED!):
+
+```
+@inproceedings{kim2026npu,
+  title     = {Implementation and Performance Evaluation of Vision Transformer Model Based on MCU-NPU},
+  author    = {Kim, Tae Hun and Kim, Tae Gu and Cho, Yong Hun and Shin, Ki Hun and Kwak, Do Gyun and Han, Koo Dong and Na, Sang Jin and Cho, Eun Young and Hwang, Woo Chan and Baek, Yun Ju},
+  booktitle = {Proceedings of the Symposium of the Korean Institute of Communications and Information Sciences},
+  pages     = {348--349},
+  year      = {2026},
+  month     = {2},
+  publisher = {Korea Institute of Communications and Information Sciences},
+  volume    = {89},
+  issn      = {2383-8302}
 }
 ```
