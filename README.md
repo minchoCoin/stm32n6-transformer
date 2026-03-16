@@ -175,7 +175,7 @@ python transformer_npu.py [-h] [--img_size IMG_SIZE] [--patch_size PATCH_SIZE] [
 - Use ReLU activation function for Multi-Layer Perceptron used for feed-forward
     - because TFLite GELU is not supported
 
-## Experiments and Results
+# Experiments and Results
 
 (table 1. Architecture of Vision Transformer for stm32n6 NPU)
 
@@ -201,13 +201,13 @@ python transformer_npu.py [-h] [--img_size IMG_SIZE] [--patch_size PATCH_SIZE] [
 |  Inference time(ms) (w/ bias) | STM32N6 |   9   |   61  |   71  |  373  |
 |  Inference time(ms) (w/ bias) | STM32H7 |  108  |  632  |  826  |   -   |
 
-## pictures
+# pictures
 ![](transformer.png)
 CPU and NPU allocation details of the operation used in the ViT model. The PE part is a preprocessing process. The operator marked in orange is executed in the NPU, and the operator marked in light green is executed in the CPU. In a model including bias, the FC layer excluding the FC used for classification is changed to 1x1Conv2D with the bias parameter
 
 ![](demo.jpg)
 
-## Citation
+# Citation
 If you find stm32n6-transformer useful in your research and wish to cite it, please use the following BibTex entry:
 
 - for code:
@@ -238,3 +238,8 @@ If you find stm32n6-transformer useful in your research and wish to cite it, ple
   issn      = {2383-8302}
 }
 ```
+
+# Acknowledgement
+이 논문은 정부(과학기술정보통신부)의 재원으로 정보통신기획평가원-대학ICT연구센터(ITRC)의 지원을 받아 수행된 연구임(IITP-2026-RS-2023-00260098)
+
+본 연구는 과학기술정보통신부 및 정보통신기획평가원의 인공지능융합혁신인재양성사업 연구 결과로 수행되었음(IITP-2026-RS-2023-00254177)
