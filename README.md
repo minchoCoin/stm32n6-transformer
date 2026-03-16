@@ -65,6 +65,8 @@ python transformer_npu_v2.py --img_size 160 --patch_size 16 --num_classes 5 --d_
 
 2. Add `/c/\<InstallFolder>/STM32CubeIDE_<X.X.X>/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.<X.X.X>/bin/` in your path to have arm-none-eabi-objcopy known by your bash(In my case, C:\ST\STM32CubeIDE_1.19.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.win32_1.0.0.202411081344).
 
+1. download ImageClassification Sourcecode at [https://github.com/STMicroelectronics/STM32N6-GettingStarted-ImageClassification/releases/tag/v2.1.1.zip](https://github.com/STMicroelectronics/STM32N6-GettingStarted-ImageClassification/releases/tag/v2.1.1) and unzip.
+
 3. Put you tflite model in the `Model` folder.
 
 4. Generate C file
@@ -79,7 +81,7 @@ arm-none-eabi-objcopy -I binary STM32N6570-DK/network_data.xSPI2.bin --change-ad
 then `network.c`, `network_data.hex`, `network_data.xSPI2.bin`, `network_ecblobs.h` will be generated in `./Model/STM32N6570-DK`
 
 ## Download and open image classification project
-1. download ImageClassification Sourcecode at [https://github.com/STMicroelectronics/STM32N6-GettingStarted-ImageClassification/releases/tag/v2.1.1.zip](https://github.com/STMicroelectronics/STM32N6-GettingStarted-ImageClassification/releases/tag/v2.1.1)
+
 1. run STM32CubeIDE
 2. Click File - Open Projects from File System
 3. Click Directory and add directory `STM32N6_GettingStarted_ImageClassification-v2.1.1/Application/STM32N6570-DK`
