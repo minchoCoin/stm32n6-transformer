@@ -85,30 +85,30 @@ then `network.c`, `network_data.hex`, `network_data.xSPI2.bin`, `network_ecblobs
 3. Click Directory and add directory `STM32N6_GettingStarted_ImageClassification-v2.1.1/Application/STM32N6570-DK`
 4. Click finish
 
-## change app_config.h and main.c
-replace the app_config.h and main.c to files in firmware folder of this repository
+## modify app_config.h and main.c
+replace the app_config.h and main.c to those in firmware folder of this repository
 
-then change NN_WIDTH, NN_HEIGHT value to image size, change PATCH_SIZE, NB_CLASSES, classes_table, and welcome message
+then modify NN_WIDTH, NN_HEIGHT value to image size, change PATCH_SIZE, NB_CLASSES, classes_table, and welcome message according to your model file. The code below is compatible with the model that has input image size 160, patch size 16, and 5 classes
 
 ```c
-#define NN_WIDTH      (96) //change
-#define NN_HEIGHT     (96)//change
+#define NN_WIDTH      (160) //you can modify
+#define NN_HEIGHT     (160)//you can modify
 #define NN_BPP 3
 
-#define PATCH_SIZE 16 //change
+#define PATCH_SIZE 16 //you can modify
 
 #define COLOR_BGR (0)
 #define COLOR_RGB (1)
 #define COLOR_MODE    COLOR_RGB
 
 /* Classes */
-#define NB_CLASSES   (5) //change
+#define NB_CLASSES   (5) //you can modify
 #define CLASSES_TABLE const char* classes_table[NB_CLASSES] = {\
-    "daisy","dandelion","rose","sunflower","tulip"} //change
+    "daisy","dandelion","rose","sunflower","tulip"} //you can modify
 
 /* Display */
-#define WELCOME_MSG_1         "Vision Transformer.tflite" //change
-#define WELCOME_MSG_2         "Model running on NPU" //change
+#define WELCOME_MSG_1         "Vision Transformer.tflite" //you can modify
+#define WELCOME_MSG_2         "Model running on NPU" //you can modify
 
 #endif
 ```
