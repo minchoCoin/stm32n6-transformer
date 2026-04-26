@@ -1,6 +1,6 @@
 # stm32n6-transformer
 
-[Paper(korean)(coming soon)](https://www.dbpia.co.kr/) | [Slides(en)](https://github.com/minchoCoin/stm32n6-transformer/blob/main/assets/stm32n6_transformer.pdf) | [Presentation Video(en)](https://youtu.be/kBkvOu6LNUI)
+[Paper(korean)](https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE12738186) | [Slides(en)](https://github.com/minchoCoin/stm32n6-transformer/blob/main/assets/stm32n6_transformer.pdf) | [Presentation Video(en)](https://youtu.be/kBkvOu6LNUI)
 
 Official repository of 'Implementation and Performance Evaluation of Vision Transformer Model
 Based on MCU-NPU' (KICS winter conference 2026)
@@ -223,7 +223,7 @@ If you find stm32n6-transformer useful in your research and wish to cite it, ple
 }
 ```
 
-- for paper (NOT YET PUBLISHED!):
+- for paper:
 
 ```
 @inproceedings{kim2026npu,
